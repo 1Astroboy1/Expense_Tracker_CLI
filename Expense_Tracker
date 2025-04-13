@@ -1,4 +1,5 @@
 import json
+from collections import defaultdict
 from datetime import datetime
 
 class ExpenseTracker:
@@ -15,12 +16,20 @@ class ExpenseTracker:
         print("Expense added")
 
     def view_expense(self):
+        expenses = load_from_file()
+        total = 0.0
         if not self.expense:
             print("Expense not found")
         if self.expense:
             print("Your expense :")
             for i, e in enumerate(self.expense, 1):
-              print(f"{idx}. {e['description']} - {e['amount']} THB [{e['timestamp']}]")
+                print(f"{i}. {e['description']} - {e['amount']} THB [{e['timestamp']}]")
+
+            for exp in expenses:
+                print(f"{exp['date']} - {exp['category']}: {exp['amount']} THB")
+                total += exp['amount']
+            print(f"\n Total: {total:.2f} THB")
+        
 
     def save_to_file(self, filename):
         try:
