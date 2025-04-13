@@ -4,90 +4,82 @@ from datetime import datetime
 
 class ExpenseTracker:
     def __init__(self):
-        self.expense = []
+        self.expenses = []
 
-    def add_notes(self, description: str, amount: float):
-        expense = {
-            "description" : description,
-            "amount" : amount,
-            "timestamp" : datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    def add_expense(self, description: str, amount: float):
+        entry = {
+            "description": description,
+            "amount": amount,
+            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         }
-        self.expense.append(expense)
-        print("Expense added")
+        self.expenses.append(entry)
 
-    def view_expense(self):
-        expenses = load_from_file()
+    def view_expenses(self):
+        expenses = self.expenses
+        summary = defaultdict(float)
         total = 0.0
-        if not self.expense:
-            print("Expense not found")
-        if self.expense:
-            print("Your expense :")
-            for i, e in enumerate(self.expense, 1):
-                print(f"{i}. {e['description']} - {e['amount']} THB [{e['timestamp']}]")
-
-            for exp in expenses:
-                print(f"{exp['date']} - {exp['category']}: {exp['amount']} THB")
-                total += exp['amount']
-            print(f"\n Total: {total:.2f} THB")
         
+        print("== Expense List ==")
+        for exp in self.expenses:
+            print(f"{exp['timestamp']} - {exp['description']}: {exp['amount']} THB")
+
+        print("== Total Expense ==")
+        for exp in expenses:
+            print(f"{exp['date']} - {exp['category']}: {exp['amount']} THB")
+            total += exp['amount']
+
+        print(f"\nTotal Expense : {total:.2f} THB")
 
     def save_to_file(self, filename):
-        try:
-            with open(filename, "w", encoding = "utf-8") as f:
-                json.dump(self.expenses, f, ensure_ascii=False, indent=4)
-            print("Expense save successfully")
-                
-        except Exception as e:
-            print(f"Error saving file: {e}")
+        with open(filename, "w", encoding="utf-8") as f:
+            json.dump(self.expenses, f, indent=4, ensure_ascii=False)
 
     def load_from_file(self, filename):
         try:
             with open(filename, "r", encoding="utf-8") as f:
                 self.expenses = json.load(f)
-            print("Notes loaded successfully.")
-            
         except FileNotFoundError:
-            print("File not found.")
-
+            print("File not found. Starting with an empty expense list.")
+            self.expenses = []
+            
 def main():
-    ex = ExpenseTracker()
+    tracker = ExpenseTracker()
 
     while True:
-        print("\n=== NotePad CLI ===")
-        print("1. Add Expense")
-        print("2. View Expense")
-        print("3. Save Expense to File")
-        print("4. Load Expense from File")
+        print("\n Expense Tracker Menu")
+        print("1. Add new expense")
+        print("2. View all expenses")
+        print("3. Save expenses to file")
+        print("4. Load expenses from file")
         print("5. Exit")
 
-        choice = input("Choose an option (1-6): ")
+        choice = input("Choose an option (1–5): ")
 
         if choice == "1":
             desc = input("Description: ")
             try:
-                amount = float(input("Amount: "))
+                amount = float(input("Amount (THB): "))
                 tracker.add_expense(desc, amount)
-
+                print("Expense added!")
             except ValueError:
-                print("Please enter a valid number.")
-
+                print("Invalid amount. Please enter a number.")
+                
         elif choice == "2":
-            ex.view_notes()
-
+            tracker.view_expenses()
+            
         elif choice == "3":
-            filename = input("Filename (e.g. data.json): ")
-            ex.save_to_file(filename)
-
+            filename = input("Enter filename to save (e.g., expenses.json): ")
+            tracker.save_to_file(filename)
+            
         elif choice == "4":
             filename = input("Enter filename to load: ")
-            ex.load_to_file(filename)
-
+            tracker.load_from_file(filename)
+            
         elif choice == "5":
             print("Goodbye!")
             break
-
         else:
-            print("Invalid choice. Please choose between 1-6.")
+            print("Invalid option. Please choose 1–5.")
 
 if __name__ == "__main__":
-    run_cli()
+    main()
