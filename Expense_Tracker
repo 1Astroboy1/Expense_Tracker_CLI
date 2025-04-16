@@ -15,12 +15,12 @@ class ExpenseTracker:
         self.expenses.append(entry)
 
     def view_expenses(self):
-        expenses = self.expenses
+        expenses = self.expense
         summary = defaultdict(float)
         total = 0.0
         
         print("== Expense List ==")
-        for exp in self.expenses:
+        for exp in expenses:
             print(f"{exp['timestamp']} - {exp['description']}: {exp['amount']} THB")
 
         print("== Total Expense ==")
@@ -29,6 +29,22 @@ class ExpenseTracker:
             total += exp['amount']
 
         print(f"\nTotal Expense : {total:.2f} THB")
+    
+    def summary_by_week(self):
+        expenses = self.expense
+        weekly_summary = defaultdict(float)
+    
+        for exp in expenses:
+            date_obj = datetime.strptime(expense["date"], "%Y-%m-%d")
+            year, week, _ = date_obj.isocalendar()
+            weekly_summary[(year, week)] += expense["amount"]
+
+        print("== Weekly Summary ==")
+
+        for (year, week), total in sorted(weekly_summary.items()):
+            start_date = datetime.strptime(f"{year}-W{week}-1", "%G-W%V-%u")
+            end_date = start_date.replace(day=start_date.day + 6)
+            print(f"Week {week} ({start_date.strftime('%b %d')}–{end_date.strftime('%b %d')}): {total:.2f} THB")    
 
     def save_to_file(self, filename):
         with open(filename, "w", encoding="utf-8") as f:
@@ -51,7 +67,8 @@ def main():
         print("2. View all expenses")
         print("3. Save expenses to file")
         print("4. Load expenses from file")
-        print("5. Exit")
+        print("5 Expenses by week")
+        print("6. Exit")
 
         choice = input("Choose an option (1–5): ")
 
@@ -74,8 +91,12 @@ def main():
         elif choice == "4":
             filename = input("Enter filename to load: ")
             tracker.load_from_file(filename)
-            
+
         elif choice == "5":
+            week = input("Please enter week :")
+            summary_by_week(week)
+            
+        elif choice == "6":
             print("Goodbye!")
             break
         else:
